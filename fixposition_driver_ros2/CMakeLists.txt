@@ -22,6 +22,8 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(fixposition_gnss_tf REQUIRED)
 find_package(fixposition_driver_lib REQUIRED)
+find_package(autoware_sensing_msgs REQUIRED)
+find_package(pix_hooke_driver_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   msg/VRTK.msg
@@ -31,6 +33,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   nav_msgs
   geometry_msgs
   builtin_interfaces
+  autoware_sensing_msgs
+  pix_hooke_driver_msgs
 )
 ament_export_dependencies(rosidl_default_runtime)
 

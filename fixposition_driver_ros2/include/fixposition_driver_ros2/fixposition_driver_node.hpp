@@ -39,6 +39,14 @@
 #include <fixposition_driver_ros2/msg/speed.hpp>
 #include <fixposition_driver_ros2/msg/vrtk.hpp>
 
+
+/*AUTOWAE*/
+#include <autoware_sensing_msgs/msg/gnss_ins_orientation_stamped.hpp>
+
+/*PIXHOOK*/
+#include <pix_hooke_driver_msgs/msg/v2a_drive_sta_fb.hpp>
+
+
 namespace fixposition {
 class FixpositionDriverNode : public FixpositionDriver {
    public:
@@ -53,7 +61,8 @@ class FixpositionDriverNode : public FixpositionDriver {
 
     void RegisterObservers();
 
-    void WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg);
+    // void WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg);
+    void WsCallback(const pix_hooke_driver_msgs::msg::v2a_drive_sta_fb::ConstSharedPtr msg);
 
    private:
     /**
@@ -80,6 +89,8 @@ class FixpositionDriverNode : public FixpositionDriver {
     rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr
         eul_imu_pub_;  //!< Euler angles Pitch-Roll as estimated from the IMU in
                        // local horizontal
+    rclcpp::Publisher<autoware_sensing_msgs::msg::GnssInsOrientationStamped>::SharedPtr orientation_pub_;
+
 
     std::shared_ptr<tf2_ros::TransformBroadcaster> br_;
     std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_br_;

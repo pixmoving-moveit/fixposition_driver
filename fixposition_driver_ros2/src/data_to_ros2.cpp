@@ -26,7 +26,8 @@
 namespace fixposition {
 void ImuDataToMsg(const ImuData& data, sensor_msgs::msg::Imu& msg) {
     msg.header.stamp = GpsTimeToMsgTime(data.stamp);
-    msg.header.frame_id = data.frame_id;
+    // msg.header.frame_id = data.frame_id;
+    msg.header.frame_id = "gnss";
 
     tf2::toMsg(data.linear_acceleration, msg.linear_acceleration);
     tf2::toMsg(data.angular_velocity, msg.angular_velocity);
@@ -39,7 +40,8 @@ void NavSatStatusDataToMsg(const NavSatStatusData& data, sensor_msgs::msg::NavSa
 
 void NavSatFixDataToMsg(const NavSatFixData& data, sensor_msgs::msg::NavSatFix& msg) {
     msg.header.stamp = GpsTimeToMsgTime(data.stamp);
-    msg.header.frame_id = data.frame_id;
+    // msg.header.frame_id = data.frame_id;
+    msg.header.frame_id = "gnss";
     NavSatStatusDataToMsg(data.status, msg.status);
     msg.latitude = data.latitude;
     msg.longitude = data.longitude;

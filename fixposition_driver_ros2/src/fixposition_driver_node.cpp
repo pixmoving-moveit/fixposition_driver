@@ -47,6 +47,9 @@ FixpositionDriverNode::FixpositionDriverNode(std::shared_ptr<rclcpp::Node> node,
       poiimu_pub_(node_->create_publisher<sensor_msgs::msg::Imu>("/fixposition/poiimu", 100)),
       vrtk_pub_(node_->create_publisher<fixposition_driver_ros2::msg::VRTK>("/fixposition/vrtk", 100)),
       odometry_enu0_pub_(node_->create_publisher<nav_msgs::msg::Odometry>("/fixposition/odometry_enu", 100)),
+      
+      orientation_pub_(node_->create_publisher<autoware_sensing_msgs::msg::GnssInsOrientationStamped>("/autoware_orientation", 100)),
+
       eul_pub_(node_->create_publisher<geometry_msgs::msg::Vector3Stamped>("/fixposition/ypr", 100)),
       eul_imu_pub_(node_->create_publisher<geometry_msgs::msg::Vector3Stamped>("/fixposition/imu_ypr", 100)),
       br_(std::make_shared<tf2_ros::TransformBroadcaster>(node_)),
@@ -100,8 +103,15 @@ void FixpositionDriverNode::RegisterObservers() {
 
                     if (odometry_enu0_pub_->get_subscription_count() > 0) {
                         nav_msgs::msg::Odometry odometry_enu0;
+                        autoware_sensing_msgs::msg::GnssInsOrientationStamped gnss_ins_orientation;
                         OdometryDataToMsg(data.odometry_enu0, odometry_enu0);
+                        gnss_ins_orientation.header = odometry_enu0.header;
+                        gnss_ins_orientation.orientation.orientation = odometry_enu0.pose.pose.orientation;
+                        gnss_ins_orientation.orientation.rmse_rotation_x = 0.0017;
+                        gnss_ins_orientation.orientation.rmse_rotation_y = 0.0017;
+                        gnss_ins_orientation.orientation.rmse_rotation_z = 0.0017;
                         odometry_enu0_pub_->publish(odometry_enu0);
+                        orientation_pub_->publish(gnss_ins_orientation);
                     }
 
                     if (vrtk_pub_->get_subscription_count() > 0) {
@@ -134,9 +144,9 @@ void FixpositionDriverNode::RegisterObservers() {
                         TfDataToMsg(data.tf_ecef_enu, tf_ecef_enu);
                         TfDataToMsg(data.tf_ecef_enu0, tf_ecef_enu0);
 
-                        br_->sendTransform(tf_ecef_enu);
-                        br_->sendTransform(tf_ecef_poi);
-                        static_br_->sendTransform(tf_ecef_enu0);
+                        // br_->sendTransform(tf_ecef_enu);
+                        // br_->sendTransform(tf_ecef_poi);
+                        // static_br_->sendTransform(tf_ecef_enu0);
                     }
                 });
         } else if (format == "LLH" && a_converters_["LLH"]) {
@@ -166,7 +176,7 @@ void FixpositionDriverNode::RegisterObservers() {
                 geometry_msgs::msg::TransformStamped tf;
                 TfDataToMsg(data, tf);
                 if (tf.child_frame_id == "FP_IMUH" && tf.header.frame_id == "FP_POI") {
-                    br_->sendTransform(tf);
+                    // br_->sendTransform(tf);
 
                     // Publish Pitch Roll based on IMU only
                     Eigen::Vector3d imu_ypr_eigen = gnss_tf::QuatToEul(data.rotation);
@@ -180,15 +190,18 @@ void FixpositionDriverNode::RegisterObservers() {
                     eul_imu_pub_->publish(imu_ypr);
 
                 } else {
-                    static_br_->sendTransform(tf);
+                    // static_br_->sendTransform(tf);
                 }
             });
         }
     }
 }
 
-void FixpositionDriverNode::WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg) {
-    FixpositionDriver::WsCallback(msg->speeds);
+// void FixpositionDriverNode::WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg) {
+//     FixpositionDriver::WsCallback(msg->speeds);
+// }
+void FixpositionDriverNode::WsCallback(const pix_hooke_driver_msgs::msg::v2a_drive_sta_fb::ConstSharedPtr msg) {
+    FixpositionDriver::WsCallback(msg->vcu_chassis_speed_fb*1000);
 }
 
 void FixpositionDriverNode::BestGnssPosToPublishNavSatFix(const Oem7MessageHeaderMem* header,
