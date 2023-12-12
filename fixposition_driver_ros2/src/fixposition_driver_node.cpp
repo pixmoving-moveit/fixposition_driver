@@ -54,7 +54,7 @@ FixpositionDriverNode::FixpositionDriverNode(std::shared_ptr<rclcpp::Node> node,
       eul_imu_pub_(node_->create_publisher<geometry_msgs::msg::Vector3Stamped>("/fixposition/imu_ypr", 100)),
       br_(std::make_shared<tf2_ros::TransformBroadcaster>(node_)),
       static_br_(std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_)) {
-    ws_sub_ = node_->create_subscription<fixposition_driver_ros2::msg::Speed>(
+    ws_sub_ = node_->create_subscription<pix_hooke_driver_msgs::msg::V2aDriveStaFb>(
         params_.customer_input.speed_topic, 100,
         std::bind(&FixpositionDriverNode::WsCallback, this, std::placeholders::_1));
 
@@ -200,8 +200,10 @@ void FixpositionDriverNode::RegisterObservers() {
 // void FixpositionDriverNode::WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg) {
 //     FixpositionDriver::WsCallback(msg->speeds);
 // }
-void FixpositionDriverNode::WsCallback(const pix_hooke_driver_msgs::msg::v2a_drive_sta_fb::ConstSharedPtr msg) {
-    FixpositionDriver::WsCallback(msg->vcu_chassis_speed_fb*1000);
+void FixpositionDriverNode::WsCallback(const pix_hooke_driver_msgs::msg::V2aDriveStaFb::ConstSharedPtr msg) {
+    std::vector<int> speed;
+    speed[0] = int (msg->vcu_chassis_speed_fb * 1000);
+    FixpositionDriver::WsCallback(speed);
 }
 
 void FixpositionDriverNode::BestGnssPosToPublishNavSatFix(const Oem7MessageHeaderMem* header,

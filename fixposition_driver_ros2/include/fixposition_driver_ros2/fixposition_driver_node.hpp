@@ -62,7 +62,7 @@ class FixpositionDriverNode : public FixpositionDriver {
     void RegisterObservers();
 
     // void WsCallback(const fixposition_driver_ros2::msg::Speed::ConstSharedPtr msg);
-    void WsCallback(const pix_hooke_driver_msgs::msg::v2a_drive_sta_fb::ConstSharedPtr msg);
+    void WsCallback(const pix_hooke_driver_msgs::msg::V2aDriveStaFb::ConstSharedPtr msg);
 
    private:
     /**
@@ -74,7 +74,7 @@ class FixpositionDriverNode : public FixpositionDriver {
     void BestGnssPosToPublishNavSatFix(const Oem7MessageHeaderMem* header, const BESTGNSSPOSMem* payload);
     
     std::shared_ptr<rclcpp::Node> node_;
-    rclcpp::Subscription<fixposition_driver_ros2::msg::Speed>::SharedPtr ws_sub_;  //!< wheelspeed message subscriber
+    rclcpp::Subscription<pix_hooke_driver_msgs::msg::V2aDriveStaFb>::SharedPtr ws_sub_;  //!< wheelspeed message subscriber
 
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr rawimu_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr corrimu_pub_;
