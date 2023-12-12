@@ -202,7 +202,7 @@ void FixpositionDriverNode::RegisterObservers() {
 // }
 void FixpositionDriverNode::WsCallback(const pix_hooke_driver_msgs::msg::V2aDriveStaFb::ConstSharedPtr msg) {
     std::vector<int> speed;
-    speed[0] = int (msg->vcu_chassis_speed_fb * 1000);
+    speed.push_back(int(msg->vcu_chassis_speed_fb * 1000));
     FixpositionDriver::WsCallback(speed);
 }
 
