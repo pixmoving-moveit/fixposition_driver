@@ -127,8 +127,8 @@ void OdometryConverter::ConvertTokens(const std::vector<std::string>& tokens) {
         msgs_.tf_ecef_poi.stamp = stamp;
         msgs_.tf_ecef_enu.frame_id = "ECEF";
         msgs_.tf_ecef_poi.frame_id = "ECEF";
-        msgs_.tf_ecef_poi.child_frame_id = "FP_POI";
-        msgs_.tf_ecef_enu.child_frame_id = "FP_ENU";  // The ENU frame at the position of FP_POI
+        msgs_.tf_ecef_poi.child_frame_id = "gnss";
+        msgs_.tf_ecef_enu.child_frame_id = "FP_ENU";  // The ENU frame at the position of gnss
 
         // static TF ECEF ENU0
         if (!tf_ecef_enu0_set_ && msgs_.tf_ecef_enu0.translation.isZero()) {
@@ -161,12 +161,12 @@ void OdometryConverter::ConvertTokens(const std::vector<std::string>& tokens) {
 
         msgs_.odometry.stamp = stamp;
         msgs_.odometry.frame_id = "ECEF";
-        msgs_.odometry.child_frame_id = "FP_POI";
+        msgs_.odometry.child_frame_id = "gnss";
 
         msgs_.vrtk.stamp = stamp;
         msgs_.vrtk.frame_id = "ECEF";
-        msgs_.vrtk.pose_frame = "FP_POI";
-        msgs_.vrtk.kin_frame = "FP_POI";
+        msgs_.vrtk.pose_frame = "gnss";
+        msgs_.vrtk.kin_frame = "gnss";
 
         // Pose & Cov
         msgs_.odometry.pose.position = (t_ecef_body);
@@ -194,10 +194,10 @@ void OdometryConverter::ConvertTokens(const std::vector<std::string>& tokens) {
         // Euler angle wrt. ENU frame in the order of Yaw Pitch Roll
         msgs_.eul = gnss_tf::EcefPoseToEnuEul(t_ecef_body, q_ecef_body.toRotationMatrix());
 
-        // Odmetry msg ENU0 - FP_POI
+        // Odmetry msg ENU0 - gnss
         msgs_.odometry_enu0.stamp = stamp;
         msgs_.odometry_enu0.frame_id = "FP_ENU0";
-        msgs_.odometry_enu0.child_frame_id = "FP_POI";
+        msgs_.odometry_enu0.child_frame_id = "gnss";
         // Pose
         // convert position in ECEF into position in ENU0
         const Eigen::Vector3d t_enu0_body = gnss_tf::TfEnuEcef(t_ecef_body, gnss_tf::TfWgs84LlhEcef(t_ecef_enu0_));
@@ -213,12 +213,12 @@ void OdometryConverter::ConvertTokens(const std::vector<std::string>& tokens) {
         msgs_.odometry_enu0.pose.cov.bottomRightCorner(3, 3) =
             rot_ecef_enu0 * cov_ecef.bottomRightCorner(3, 3) * rot_ecef_enu0.transpose();
 
-        // Twist is the same as it is in the FP_POI frame
+        // Twist is the same as it is in the gnss frame
         msgs_.odometry_enu0.twist = msgs_.odometry.twist;
     }
 
     // Msgs
-    //!<  Odmetry msg ECEF - FP_POI
+    //!<  Odmetry msg ECEF - gnss
 
     // Status, regardless of fusion_init
     msgs_.vrtk.fusion_status = fusion_status;
@@ -230,7 +230,7 @@ void OdometryConverter::ConvertTokens(const std::vector<std::string>& tokens) {
 
     // POI IMU Message
     msgs_.imu.stamp = stamp;
-    msgs_.imu.frame_id = "FP_POI";
+    msgs_.imu.frame_id = "gnss";
     // Omega
     msgs_.imu.angular_velocity = msgs_.odometry.twist.angular;
     // Acceleration
